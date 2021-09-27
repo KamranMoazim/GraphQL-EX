@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client"; // useSubscription
+import { useQuery, useMutation, useSubscription, gql } from "@apollo/client";
 import { Heading, Input, Button, Container, Flex, Radio, Label } from "theme-ui";
 
 const GET_TODOS = gql`
@@ -17,6 +17,15 @@ const ADD_TODO = gql`
       title
     }
   }
+`;
+const ADD_TODO_SUB = gql`
+subscription {
+  todoAdded {
+    id
+    title
+    status
+  }
+}
 `;
 
 const DELETE_TODO = gql`
@@ -42,11 +51,14 @@ export default function Home() {
   const [updateTodo] = useMutation(UPDATE_TODO);
   const [addTodo, addTodoReturnObj] = useMutation(ADD_TODO);
 
+  const ADD_TODO_SUB_RETURN = useSubscription(ADD_TODO_SUB);
+
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState(true);
 
 
   // console.log(addTodoReturnObj.error)
+  console.log(ADD_TODO_SUB_RETURN);
 
   const addTask = async (title, status) => {
     let dat = await addTodo({
@@ -93,6 +105,7 @@ export default function Home() {
 
   return (
     <Container p={3} className="container">
+      {!ADD_TODO_SUB_RETURN.loading && ADD_TODO_SUB_RETURN.data.todoAdded?alert("NEW TODO ADDED"):null}
       <Flex
         sx={{
           flexWrap: "wrap",
@@ -184,6 +197,7 @@ export default function Home() {
               </Flex>
             );
           })}
+
         </Flex>
       </Flex>
     </Container>

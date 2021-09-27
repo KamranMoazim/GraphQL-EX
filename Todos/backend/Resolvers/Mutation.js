@@ -5,10 +5,10 @@ const { ADDED, DELETED, UPDATED } = require("../subscriptionConts");
 const Mutation = {
     addTodo:(parent, {title, status}, {allTodos, pubsub})=>{
 
-        console.log(title, status)
+        // console.log(title, status)
 
         let todoAdded = {id:v4(), title, status};
-        // allTodos.push(todoAdded);
+        allTodos.push(todoAdded);
 
         pubsub.publish(ADDED, {
             todoAdded
