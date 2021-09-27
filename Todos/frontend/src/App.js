@@ -1,6 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useSubscription, gql } from "@apollo/client";
 import { Heading, Input, Button, Container, Flex, Radio, Label } from "theme-ui";
+
+// import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// const notify = (text) => toast(text);
+
+
+import Notices from "./Notices";
 
 const GET_TODOS = gql`
   {
@@ -18,15 +26,15 @@ const ADD_TODO = gql`
     }
   }
 `;
-const ADD_TODO_SUB = gql`
-subscription {
-  todoAdded {
-    id
-    title
-    status
-  }
-}
-`;
+// const ADD_TODO_SUB = gql`
+// subscription {
+//   todoAdded {
+//     id
+//     title
+//     status
+//   }
+// }
+// `;
 
 const DELETE_TODO = gql`
   mutation ($id: ID!) {
@@ -46,29 +54,37 @@ const UPDATE_TODO = gql`
   }
 `;
 
+
+
+
 export default function Home() {
   const [deleteTodo] = useMutation(DELETE_TODO);
   const [updateTodo] = useMutation(UPDATE_TODO);
   const [addTodo, addTodoReturnObj] = useMutation(ADD_TODO);
 
-  const ADD_TODO_SUB_RETURN = useSubscription(ADD_TODO_SUB);
-
+  // console.log(addTodoReturnObj.error)
+  
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState(true);
-
-
-  // console.log(addTodoReturnObj.error)
-  console.log(ADD_TODO_SUB_RETURN);
-
-  const addTask = async (title, status) => {
-    let dat = await addTodo({
+  
+  // let ADD_TODO_SUB_RETURN = useSubscription(ADD_TODO_SUB);
+  // // console.log(ADD_TODO_SUB_RETURN);
+  // if (!ADD_TODO_SUB_RETURN.error && !ADD_TODO_SUB_RETURN.loading) {
+  //   notify(ADD_TODO_SUB_RETURN.data.todoAdded.title);
+  //   ADD_TODO_SUB_RETURN.error = true;
+  // }
+  
+  const addTask = async () => {
+    // let dat = 
+    await addTodo({
       variables: {
         title,
         status
       },
       refetchQueries: [{ query: GET_TODOS }],
     })
-    console.log(dat)
+    // console.log(dat)
+    
     setTitle('');
     setStatus(false);
   };
@@ -105,7 +121,9 @@ export default function Home() {
 
   return (
     <Container p={3} className="container">
-      {!ADD_TODO_SUB_RETURN.loading && ADD_TODO_SUB_RETURN.data.todoAdded?alert("NEW TODO ADDED"):null}
+
+      <Notices />
+
       <Flex
         sx={{
           flexWrap: "wrap",
@@ -120,7 +138,9 @@ export default function Home() {
           sx={{ width: "30%", minWidth: "250px" }}
           m={2}
           type="text"
-          onChange={(e)=>{setTitle(e.target.value)}}
+          onChange={(e)=>{
+            setTitle(e.target.value)
+          }}
           value={title}
         />
         <Label>
@@ -128,7 +148,9 @@ export default function Home() {
             name='dark-mode'
             value='true'
             defaultChecked={true}
-            onClick={()=>setStatus(true)}
+            onClick={()=>{
+              setStatus(true)
+            }}
           />
           Completed
         </Label>
@@ -136,12 +158,14 @@ export default function Home() {
           <Radio
             name='dark-mode'
             value='false'
-            onClick={()=>setStatus(false)}
+            onClick={()=>{
+              setStatus(false)
+            }}
           />
           Not Completed
         </Label>
 
-        <Button m={2} variant="primary" backgroundColor="#5b29e2" onClick={()=>addTask(title, status)}>
+        <Button m={2} variant="primary" backgroundColor="#5b29e2" onClick={addTask}>
           Add Task
         </Button>
       </Flex>
@@ -187,9 +211,9 @@ export default function Home() {
                       {todo.status.toString()==="true"?"Task Completed":"Ongoing"}
                   </Button>
 
-                  {!todo.status?<Button onClick={() => updateTask(todo.id)}>Update</Button>:null}
+                  {!todo.status?<Button onClick={() => {updateTask(todo.id)}} backgroundColor="purple">Update</Button>:<Button backgroundColor="purple" onClick={(e) => {e.preventDefault();updateTask(todo.id)}}>Undo</Button>}
 
-                  <Button sx={{ margin: "5px" }} backgroundColor="red" onClick={() => deleteTask(todo.id)}>
+                  <Button sx={{ margin: "5px" }} backgroundColor="red" onClick={() => {deleteTask(todo.id)}}>
                     Delete
                   </Button>
                   
