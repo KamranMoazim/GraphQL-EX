@@ -13,8 +13,8 @@ const todos = gql`
     }
 
     type Mutation {
-        addTodo(title: String!, status: Boolean):Todo
-        updateTodo(id: ID!, title: String!, status: Boolean):Todo
+        addTodo(title: String!, status: Boolean!):Todo
+        updateTodo(id: ID!):Todo
         deleteTodo(id: ID!):Todo
     }
 

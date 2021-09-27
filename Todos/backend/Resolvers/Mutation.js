@@ -4,22 +4,24 @@ const { ADDED, DELETED, UPDATED } = require("../subscriptionConts");
 
 const Mutation = {
     addTodo:(parent, {title, status}, {allTodos, pubsub})=>{
+
+        console.log(title, status)
+
         let todoAdded = {id:v4(), title, status};
-        allTodos.push(todoAdded);
+        // allTodos.push(todoAdded);
 
         pubsub.publish(ADDED, {
             todoAdded
         });
-
+        // console.log("CALLED CALLED")
         return todoAdded;
     },
-    updateTodo:(parent, {id, title, status}, {allTodos, pubsub})=>{
+    updateTodo:(parent, {id}, {allTodos, pubsub})=>{
 
         let index = allTodos.findIndex((todo) => {
             return todo.id === id
         });
-        allTodos[index].title = title;
-        allTodos[index].status = status;
+        allTodos[index].status = !allTodos[index].status;
 
         let todoUpdated = allTodos[index]
 
